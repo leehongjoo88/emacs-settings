@@ -2,7 +2,7 @@
 My personal emacs-settings and documentations
 
 ## .emacs
-Do not write much in .emacs. Just load emacs-settings.el from .emacs.
+Copy emacs-settings.el to .emacs.
 
 ## Tab
 * Do not use tab. Indent with space.
