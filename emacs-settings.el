@@ -50,15 +50,15 @@
 (require 'iedit)
 (require 'magit)
 (require 'undo-tree)
+(require 'vmd-mode)
 
-
-(add-hook 'after-init-hook 'global-undo-tree-mode)
-(add-hook 'after-init-hook 'global-company-mode)
+(add-hook 'after-init-hook
+          'global-undo-tree-mode
+          'global-company-mode)
 (global-set-key (kbd "<C-tab>") 'company-complete)
 (define-key global-map (kbd "C-c ;") 'iedit-mode)
 (color-theme-initialize)
 (exec-path-from-shell-initialize)
-
 
 (if (display-graphic-p)
   (color-theme-solarized)

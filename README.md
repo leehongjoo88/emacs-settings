@@ -22,15 +22,22 @@ Copy emacs-settings.el to .emacs.
 Manage package with package manager and melpa archive. Minimize custom packages.
 
 ## Packages
-### undo-tree
-### color-theme
 ### ag
-### magit
-### iedit
+* Requires silver-searcher
+* `sudo apt-get install silversearcher-ag`
+
+### color-theme
 ### company
 ### elpy
 ### google-c-style
+### iedit
+### magit
 ### org
+### undo-tree
+### vmd-mode
+* Requires vmd from npm.
+* `npm install -g vmd --unsafe-perm=true`
+
 
 ## Color theme
 
