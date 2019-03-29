@@ -1,12 +1,10 @@
 (prefer-coding-system 'utf-8)
+;; indent = spaces
 (setq-default indent-tabs-mode nil)
+;; do not use auto-save
 (setq auto-save-default nil)
-(setq column-number-mode t)
-(put 'dired-find-alternate-file 'disabled nil)
-; font size
-(set-face-attribute 'default nil :height 160)
-
 ;; collect backup in one place
+(setq-default tab-width 2)
 (setq
   backup-by-copying t      ; don't clobber symlinks
   backup-directory-alist
@@ -27,8 +25,8 @@
 (global-set-key (kbd "\C-c k")    'windmove-up)
 (global-set-key (kbd "\C-c j")  'windmove-down)
 ;; shift region
-(global-set-key (kbd "C-c >") (kbd (format "C-u %d C-x TAB" tab-width)))
-(global-set-key (kbd "C-c <") (kbd (format "C-u - %d C-x TAB" tab-width)))
+(global-set-key (kbd "C-x >") (kbd (format "C-u %d C-x TAB" tab-width)))
+(global-set-key (kbd "C-x <") (kbd (format "C-u - %d C-x TAB" tab-width)))
 ;; C-j <-> RET
 (global-set-key (kbd "<RET>") 'electric-indent-just-newline)
 (global-set-key (kbd "C-j") 'newline-and-indent)
@@ -37,28 +35,173 @@
 (when (>= emacs-major-version 24)
   (require 'package)
   (package-initialize)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.milkbox.net/packages/") t)
 )
 
+(defvar my-packages
+  '(ag
+    bazel-mode
+    color-theme
+    color-theme-sanityinc-solarized
+    color-theme-sanityinc-tomorrow
+    color-theme-solarized
+    company
+    company-c-headers
+    company-go
+    conda
+    csharp-mode
+    dockerfile-mode
+    elpy
+    exec-path-from-shell
+    flycheck
+    geiser
+    go-mode
+    google-c-style
+    iedit
+    indium  ;; JavaScript
+    json-mode
+    magit
+    magit-gerrit
+    markdown-mode
+    nodejs-repl
+    npm-mode
+    org
+    pylint
+    racket-mode
+    rjsx-mode
+    scala-mode
+    slime
+    slime-company
+    undo-tree
+    vimrc-mode
+    vmd-mode
+    vue-mode
+    yaml-mode
+    yapfify))
+
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
 (package-initialize)
 
-(require 'ag)
-(require 'color-theme)
-(require 'company)
-(require 'exec-path-from-shell)
-(require 'google-c-style)
-(require 'iedit)
-(require 'magit)
-(require 'undo-tree)
-(require 'vmd-mode)
+(mapc #'(lambda (package)
+          (unless (package-installed-p package)
+            (package-install package)))
+      my-packages)
 
-(add-hook 'after-init-hook
-          'global-undo-tree-mode
-          'global-company-mode)
-(global-set-key (kbd "<C-tab>") 'company-complete)
-(define-key global-map (kbd "C-c ;") 'iedit-mode)
-(color-theme-initialize)
+;; Have to be on top of other packages
+(require 'exec-path-from-shell)
 (exec-path-from-shell-initialize)
+(exec-path-from-shell-copy-env "PATH")
+
+(require 'undo-tree)
+(add-hook 'after-init-hook 'global-undo-tree-mode)
+
+(require 'color-theme)
+(color-theme-initialize)
+
+(require 'ag)
+(require 'magit)
+;; iedit
+(require 'iedit)
+(define-key global-map (kbd "C-c ;") 'iedit-mode)
+
+(require 'company)
+(require 'company-go)
+(add-hook 'after-init-hook 'global-company-mode)
+
+;; company-complete
+(global-set-key (kbd "<C-tab>") 'company-complete)
+
+;; python
+(elpy-enable)
+(elpy-use-ipython)
+;; Use flycheck instead of flymake
+(setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+(add-hook 'elpy-mode-hook 'flycheck-mode)
+
+;; Javascript
+(require 'indium)
+
+(require 'google-c-style)
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (company-go flycheck json-reformat yaml-mode go-mode dockerfile-mode bazel-mode rjsx-mode vmd-mode markdown-mode md-readme conda anaconda-mode company-anaconda ensime sbt-mode scala-mode slime slime-company nodejs-repl magit-gerrit indium npm-mode google-c-style vimrc-mode elpy auto-complete auto-complete-c-headers company-auctex company-bibtex company-c-headers company-rtags ag color-theme color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow color-theme-solarized company iedit magit org undo-tree))))
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+(put 'dired-find-alternate-file 'disabled nil)
+
+; font size
+(set-face-attribute 'default nil :height 160)
+
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.cs$" . csharp-mode))
+(add-to-list 'auto-mode-alist '("\\BUILD$" . bazel-mode))
+
+(defun my-c++-mode-hook ()
+  (setq tab-width 4))
+
+(defun my-sh-mode-hook ()
+  (setq sh-basic-offset 2)
+  (setq tab-width 2)
+  (setq sh-indentation 2))
+
+(defun my-python-mode-hook ()
+  (setq tab-width 4)
+  (setq python-shell-interpreter "ipython3")
+  (setq python-shell-interpreter-args "--simple-prompt --pprint")
+  (setq flycheck-python-pylint-executable "/usr/local/bin/pylint")
+  )
+
+(defun my-js-mode-hook ()
+  (setq tab-width 2)
+  (flycheck-mode)
+  (advice-add
+   'js--multi-line-declaration-indentation
+   :around (lambda (orig-fun &rest args) nil))
+  (setq js-indent-level 2)
+  (setq js2-mode-show-parse-errors nil)
+  (setq js2-mode-show-strict-warnings nil))
+
+(defun my-csharp-mode-hook ()
+  ;; enable the stuff you want for C# here
+  (electric-pair-local-mode 1) ;; Emacs 25
+  )
+
+(defun my-go-mode-hook ()
+  (setq tab-width 4)
+  (setq indent-tabs-mode nil)
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  (set (make-local-variable 'company-backends) '(company-go))
+  )
+
+(add-hook 'c++-mode-hook 'my-c++-mode-hook)
+(add-hook 'sh-mode-hook 'my-sh-mode-hook)
+(add-hook 'python-mode-hook 'my-python-mode-hook)
+(add-hook 'rjsx-mode-hook 'flycheck-mode)
+(add-hook 'js2-mode-hook 'my-js-mode-hook)
+(add-hook 'csharp-mode-hook 'my-csharp-mode-hook)
+(add-hook 'go-mode-hook 'my-go-mode-hook)
+
+(setenv "PYTHONIOENCODING" "utf-8")
+(setenv "LANG" "en_US.UTF-8")
+(setq inferior-lisp-program "/usr/local/bin/sbcl")
+
+(setq column-number-mode t)
 
 (if (display-graphic-p)
   (color-theme-solarized)
