@@ -8,7 +8,7 @@
 (setq
   backup-by-copying t      ; don't clobber symlinks
   backup-directory-alist
-  '(("." . "~/.emacs.d/emacs-backups"))    ; don't litter my fs tree
+  '(("." . "/home/hongjoo/.emacs.d/emacs-backups"))    ; don't litter my fs tree
   delete-old-versions t
   kept-new-versions 6
   kept-old-versions 2
@@ -40,11 +40,7 @@
 
 (defvar my-packages
   '(ag
-    bazel-mode
-    color-theme
-    color-theme-sanityinc-solarized
-    color-theme-sanityinc-tomorrow
-    color-theme-solarized
+    color-theme-modern
     company
     company-c-headers
     company-go
@@ -66,18 +62,19 @@
     nodejs-repl
     npm-mode
     org
+    py-yapf
     pylint
     racket-mode
     rjsx-mode
     scala-mode
     slime
     slime-company
+    solarized-theme
     undo-tree
     vimrc-mode
     vmd-mode
     vue-mode
-    yaml-mode
-    yapfify))
+    yaml-mode))
 
 
 ;; Added by Package.el.  This must come before configurations of
@@ -99,9 +96,6 @@
 (require 'undo-tree)
 (add-hook 'after-init-hook 'global-undo-tree-mode)
 
-(require 'color-theme)
-(color-theme-initialize)
-
 (require 'ag)
 (require 'magit)
 ;; iedit
@@ -116,8 +110,16 @@
 (global-set-key (kbd "<C-tab>") 'company-complete)
 
 ;; python
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(conda-anaconda-home "/home/hongjoo/miniconda3/")
+ '(package-selected-packages
+   (quote
+    (company-go flycheck json-reformat yaml-mode go-mode dockerfile-mode rjsx-mode vmd-mode markdown-mode md-readme conda anaconda-mode company-anaconda ensime sbt-mode scala-mode slime slime-company nodejs-repl magit-gerrit indium npm-mode google-c-style vimrc-mode elpy auto-complete auto-complete-c-headers company-auctex company-bibtex company-c-headers company-rtags ag company iedit magit org undo-tree))))
 (elpy-enable)
-(elpy-use-ipython)
 ;; Use flycheck instead of flymake
 (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
 (add-hook 'elpy-mode-hook 'flycheck-mode)
@@ -127,14 +129,7 @@
 
 (require 'google-c-style)
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (company-go flycheck json-reformat yaml-mode go-mode dockerfile-mode bazel-mode rjsx-mode vmd-mode markdown-mode md-readme conda anaconda-mode company-anaconda ensime sbt-mode scala-mode slime slime-company nodejs-repl magit-gerrit indium npm-mode google-c-style vimrc-mode elpy auto-complete auto-complete-c-headers company-auctex company-bibtex company-c-headers company-rtags ag color-theme color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow color-theme-solarized company iedit magit org undo-tree))))
+
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -145,12 +140,11 @@
 (put 'dired-find-alternate-file 'disabled nil)
 
 ; font size
-(set-face-attribute 'default nil :height 160)
+(set-face-attribute 'default nil :height 120)
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 (add-to-list 'auto-mode-alist '("\\.cs$" . csharp-mode))
-(add-to-list 'auto-mode-alist '("\\BUILD$" . bazel-mode))
 
 (defun my-c++-mode-hook ()
   (setq tab-width 4))
@@ -164,8 +158,7 @@
   (setq tab-width 4)
   (setq python-shell-interpreter "ipython3")
   (setq python-shell-interpreter-args "--simple-prompt --pprint")
-  (setq flycheck-python-pylint-executable "/usr/local/bin/pylint")
-  )
+  (py-yapf-enable-on-save))
 
 (defun my-js-mode-hook ()
   (setq tab-width 2)
@@ -179,15 +172,14 @@
 
 (defun my-csharp-mode-hook ()
   ;; enable the stuff you want for C# here
-  (electric-pair-local-mode 1) ;; Emacs 25
-  )
+  ;; Emacs 25
+  (electric-pair-local-mode 1))
 
 (defun my-go-mode-hook ()
   (setq tab-width 4)
   (setq indent-tabs-mode nil)
   (add-hook 'before-save-hook 'gofmt-before-save)
-  (set (make-local-variable 'company-backends) '(company-go))
-  )
+  (set (make-local-variable 'company-backends) '(company-go)))
 
 (add-hook 'c++-mode-hook 'my-c++-mode-hook)
 (add-hook 'sh-mode-hook 'my-sh-mode-hook)
@@ -199,10 +191,10 @@
 
 (setenv "PYTHONIOENCODING" "utf-8")
 (setenv "LANG" "en_US.UTF-8")
-(setq inferior-lisp-program "/usr/local/bin/sbcl")
+(setq inferior-lisp-program "/usr/bin/sbcl")
 
 (setq column-number-mode t)
 
 (if (display-graphic-p)
-  (color-theme-solarized)
-  (color-theme-tty-dark))
+  (load-theme 'solarized-dark t)
+  (load-theme 'clarity t))
